@@ -1,7 +1,39 @@
 import React from 'react';
 import { FlatList, Text, TouchableOpacity, View } from 'react-native';
+import GetLocation from 'react-native-get-location'
+import NetInfo from "@react-native-community/netinfo";
+import { useState } from 'react';
 
 const Home = () => {
+    const [isConnected, setisConnected] = useState(false)
+
+    React.useEffect(() => {
+        if (isConnected) {
+            getLocation()
+        }
+    }, [])
+
+    React.useEffect(() => {
+        const unsubscribe = NetInfo.addEventListener(state => {
+            setisConnected(state.isConnected)
+        });
+
+        return unsubscribe();
+    }, [])
+
+    const getLocation = () => {
+        GetLocation.getCurrentPosition({
+            enableHighAccuracy: true,
+            timeout: 15000,
+        }).then(location => {
+            console.log('getLocation', location)
+            // dispatch(api_data({ latitude: location.latitude, longitude: location.longitude }))
+        })
+            .catch(error => {
+                const { code, message } = error;
+                console.warn(code, message);
+            })
+    }
 
     const renderItem = () => {
         return (
@@ -19,7 +51,7 @@ const Home = () => {
 
     }
     return (
-        <>{false ?
+        <>{isConnected ?
             <View style={{ flex: 1 }}>
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <Text style={{ fontSize: 80 }}>10</Text>
